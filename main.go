@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"gitlab.com/gomidi/midi/v2"
 	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv" // autoregisters driver
@@ -12,7 +13,28 @@ import (
 func main() {
 	defer midi.CloseDriver()
 
-	fname := "test.drumscript"
+	portPtr := flag.String("p", "", "Override the port set in the script")
+	flag.Parse()
+
+	OverridePortName = *portPtr
+	if OverridePortName != "" {
+		setPort([]string{})
+	}
+
+	fname := ""
+	songname := ""
+
+	args := flag.Args()
+	switch len(args) {
+	case 0:
+		fmt.Printf("Usage: %s [-p port] filename [song]\n", os.Args[0])
+	case 1:
+		fname = args[0]
+	case 2:
+		fname = args[0]
+		songname = args[1]
+	}
+
 	err := parseScript(fname)
 	if err != nil {
 		fmt.Println(err)
@@ -24,9 +46,13 @@ func main() {
 		return
 	}
 
-	songIndex, err := getSongIndex("")
+	songIndex, err := getSongIndex(songname)
 	if err != nil {
-		fmt.Println("No default song specified")
+		if songname == "" {
+			fmt.Println("No default song found")
+		} else {
+			fmt.Printf("Song %s not found\n", songname)
+		}
 		return
 	}
 

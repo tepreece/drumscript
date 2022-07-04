@@ -8,6 +8,7 @@ import (
 
 var (
 	send                        func(msg midi.Message) error
+	OverridePortName            string
 	PortOpen                    bool
 	Tempo                       uint16
 	ActiveSong, ActiveSongEvent int
@@ -23,11 +24,16 @@ const (
 )
 
 func setPort(fields []string) error {
-	if len(fields) != 2 {
-		return errors.New("Invalid port name")
+	portname := OverridePortName
+
+	if OverridePortName == "" {
+		if len(fields) != 2 {
+			return errors.New("Invalid port name")
+		}
+		portname = fields[1]
 	}
 
-	out, err := midi.FindOutPort(fields[1])
+	out, err := midi.FindOutPort(portname)
 	if err != nil {
 		return err
 	}
