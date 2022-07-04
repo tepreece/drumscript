@@ -1,0 +1,187 @@
+# Example drumscript by Thomas Preece, July 2022
+# It is possible to make the script executable and start it with a shebang
+# such as #!/usr/bin/drumscript (or wherever you installed it) if you would like.
+
+# Set the default MIDI port for this script. You can see a list of MIDI ports
+# by running drumscript -l
+# You can override the port at runtime by using drumscript -p <name of port>
+port TiMidity
+
+# Here we define some instruments. Each instrument is represented by a single
+# letter of the alphabet (other characters are not valid), which is used in the
+# drum patterns that we will define shortly. In each case we specify the MIDI
+# instrument number and optionally the velocity (which defaults to 127, the
+# maximum allowed). I've added a comment to show what each instrument is.
+# The following instrument numbers are based on the General MIDI standard; if
+# your MIDI instrument uses different numbers, use the relevant numbers for
+# that instrument. The output is always on MIDI channel 10, which is reserved
+# for percussion.
+instrument a 42 # closed hi hat
+instrument c 49 # crash cymbal
+instrument x 39 # hand clap
+instrument k 35 # bass drum (kick)
+instrument s 38 # snare drum
+
+# The instrument letters are case sensitive, allowing you to define two variants
+# of the same instrument as the same letter in different cases.
+instrument K 35 80 # kick drum with lower velocity
+
+# Now we will define some patterns. These are the basic building blocks of
+# our drum sequence, and they are later combined into songs that can be
+# played. The name of the pattern is case-sensitive and
+# must begin with a letter, but can have any other characters (except spaces)
+# after it. Within the pattern, each non-blank line represents a beat - in this
+# case, we're defining a simple backbeat of kick drum on 1 and 3 and snare drum
+# on 2 and 4. I have indented the content of each pattern to make it easier to
+# read, but this isn't necessary - you can put as much or as little whitespace
+# as you like.
+
+pattern backbeat
+	k
+	s
+	k
+	s
+end
+
+# Empty lines are ignored, so if you want a beat to be empty, put a single dot
+# on that line. Let's define claps on 2 and 4. The "end" keyword for a pattern
+# is actually optional, and usually I leave it out - by starting a new pattern
+# or a song (see later), the parser knows that the previous pattern has ended.
+
+pattern claps
+	.
+	x
+	.
+	x
+
+# You can include multiple drums on each beat. If you put multiple letters
+# together as a single term, then all of those instruments will trigger at
+# the same time. If you put multiple terms on a line, then they will trigger
+# at equally-spaced intervals throughout the beat.
+
+# This pattern triggers the snare and the crash cymbal together on 2 and 4:
+
+pattern snare-and-cymbal
+	.
+	sc
+	.
+	sc
+	
+# And this pattern plays quavers (8th-notes) on the closed hi-hats:
+
+pattern hihats
+	a a
+	a a
+	a a
+	a a
+
+# You can use the dot within a sub-beat as well - and note that not all
+# beats have to have the same number of events.
+
+pattern claps2
+	.
+	x
+	. x
+	x x
+
+# Now let's start to put these patterns together to make a simple song.
+# If you don't specify a song name, it becomes the default song. This song
+# will play the backbeat over and over until we quit drumscript using ^C.
+# To listen to this example, run: drumscript example.drumscript
+
+song
+	backbeat
+repeat
+
+# The default tempo is 120 bpm, but we can change that. To listen to this
+# example, run: drumscript example.drumscript fast
+
+song fast
+	tempo 160
+	backbeat
+repeat
+
+# It is also possible to change tempo during a song.
+
+song two-tempos
+	tempo 160
+	backbeat
+	tempo 90
+	backbeat
+repeat
+
+# We can specify multiple patterns in a song to be played in order.
+
+song two-patterns-in-order
+	backbeat
+	hihats
+repeat
+
+# We can also specify multiple patterns to be played at the same time.
+
+song two-patterns-together
+	backbeat hihats
+repeat
+
+# You can also use the keyword "end" to terminate after playing a song,
+# or the keyword "chain" to move to a different song.
+
+song ends
+	backbeat hihats
+end
+
+song chains
+	claps
+chain ends
+
+# If you want to repeat a line a definite number of times, just put a
+# number at the start.
+
+song repeats
+	4 hihats claps
+end
+
+# A pattern doesn't have to be four beats long, of course. Let's define
+# a waltz beat:
+
+pattern waltz
+	k
+	s
+	s
+
+song waltz
+	waltz
+repeat
+
+# Note that if you trigger two patterns of different length at the same time,
+# it waits until all patterns have finished before moving on to the next line.
+
+song waltz-hihats
+	waltz hihats
+repeat
+
+# Similarly you can define songs in compound time by having three subdivisions
+# of a beat.
+
+pattern six-eight
+	ka sa sa
+	ka sa c
+
+song six-eight
+	tempo 90
+	six-eight
+repeat
+
+# You can also play polyrhythms by playing two patterns at the same time that
+# have different numbers of subdivisions of the beat.
+
+pattern kick-three
+	k k k
+
+pattern snare-four
+	s s s s
+
+song three-against-four
+	tempo 60
+	kick-three snare-four
+repeat
