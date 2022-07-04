@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"gitlab.com/gomidi/midi/v2"
 	"time"
 )
@@ -22,6 +23,10 @@ var (
 const (
 	DefaultTempo uint16 = 120
 )
+
+func listPorts() {
+	fmt.Println("Available MIDI ports:\n" + midi.GetOutPorts().String())
+}
 
 func setPort(fields []string) error {
 	portname := OverridePortName
@@ -83,7 +88,6 @@ func playSong(songIndex int) error {
 		} else {
 			if song.Events[0].Tempo == 0 {
 				song.Events[0].Tempo = DefaultTempo
-				println("setting default tempo")
 			}
 		}
 	}

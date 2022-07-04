@@ -38,10 +38,13 @@ func startParsePattern(fields []string, state *parseState) error {
 	}
 
 	name := fields[1]
+
+	// first character must be a letter
 	for _, r := range name {
 		if !unicode.IsLetter(r) {
 			return errors.New("Invalid pattern name")
 		}
+		break
 	}
 
 	state.State = PatternState

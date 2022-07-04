@@ -38,6 +38,7 @@ func startParseSong(fields []string, state *parseState) error {
 			if !unicode.IsLetter(r) {
 				return errors.New("Invalid song name")
 			}
+			break
 		}
 	default:
 		return errors.New("Invalid song name")

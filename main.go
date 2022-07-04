@@ -14,7 +14,13 @@ func main() {
 	defer midi.CloseDriver()
 
 	portPtr := flag.String("p", "", "Override the port set in the script")
+	listPtr := flag.Bool("l", false, "List the available MIDI ports")
 	flag.Parse()
+
+	if *listPtr {
+		listPorts()
+		return
+	}
 
 	OverridePortName = *portPtr
 	if OverridePortName != "" {
